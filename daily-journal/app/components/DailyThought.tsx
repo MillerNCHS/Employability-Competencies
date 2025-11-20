@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function DailyThought() {
     // input is the variable and setInput updates the variable
@@ -7,6 +7,20 @@ export default function DailyThought() {
     const [thoughts, setThoughts] = 
     useState<{ text: string; time: string }[]>([]);
     
+    // Load thoughts from localStorage on page load
+    useEffect(() => {
+        const savedThoughts = localStorage.getItem("dailyThoughts");
+        if (savedThoughts) {
+            setThoughts(JSON.parse(savedThoughts));
+        }
+    }, []); // Empty dependency array = runs only once on component mount
+
+    // Save thoughts to localStorage whenever thoughts are added
+    useEffect(() => {
+        // Convert the stored JSON data to a string
+        localStorage.setItem("dailyThoughts", JSON.stringify(thoughts));
+    }, [thoughts]); // Runs whenever thoughts state changes 
+
     // Handle saving a thought
     const handleSave = () => {
         if (input.trim() === "") return;
@@ -14,7 +28,9 @@ export default function DailyThought() {
         // Create timestamp
         const now = new Date();
         const timestamp = now.toLocaleString("en-US", {
-            weekday: "short",
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
             hour: "2-digit",
             minute: "2-digit",
         });
