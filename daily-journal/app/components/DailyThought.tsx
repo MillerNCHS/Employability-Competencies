@@ -18,6 +18,13 @@ type Competency = {
     description: string;
 };
 
+type EntryFromDB = {
+    id: number;
+    text: string;
+    created_at: string;
+    competencies: {competency_id: number}[];
+}
+
 // The DailyThought component can't be used elsewhere if we don't export it
 export default function DailyThought() {
     // input/thoughts/competencies/selected are the variables and setInput/setThoughts/setCompetencies/setSelected update those variables
