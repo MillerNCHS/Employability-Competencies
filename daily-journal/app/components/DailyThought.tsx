@@ -52,10 +52,30 @@ export default function DailyThought() {
 
     // Load thoughts from localStorage on page load
     useEffect(() => {
-        const savedThoughts = localStorage.getItem("dailyThoughts");
-        if (savedThoughts) {
-            setThoughts(JSON.parse(savedThoughts));
+        
+        async function loadThoughts() {
+            const res = await fetch("/api/entry");
+            
+            if (!res.ok) return;
+            const data: EntryFromDB[] = await res.json();
+            
+            // Transform the response into a Thought
+            const formatted: Thought[] = data.map((row) => (
+                {
+                    text: row.text,
+                    time: new Date(row.created_at).toLocaleString("en-US", {
+                        month: "short",
+                        day: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    }),
+                    competencies: row.competencies.map((c) => c.competency_id),
+                }
+            ));
+            setThoughts(formatted);
         }
+        loadThoughts();
     }, []);
 
     // Save thoughts to localStorage whenever thoughts are added
@@ -69,25 +89,30 @@ export default function DailyThought() {
         Triggered when the Save Thought button is clicked
         Create a new Thought object and add it to the others thoughts
     */
-    const handleSave = () => {
+    const handleSave = async () => {
         // If the input box is empty, return without doing anything
         if (input.trim() === "") return;
 
-        // Create timestamp for the current time
-        const now = new Date();
-        const timestamp = now.toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
+       const res = await fetch("api/entry", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                text: input,
+                competencyIDs: selected, // must match API route
+            }),
+       });
+
+       if (!res.ok) {
+        alert("Failed to save entry.");
+        return;
+       }
 
         // Create a new Thought object and clear the input box
         // Calling setThoughts will trigger the useEffect with thoughts as a dependency
-        const newThought = { text: input, time: timestamp, competencies: selected };
+        const newThought = await res.json();
         setThoughts([newThought, ...thoughts]);
         setInput("");
+        setSelected([]);
     }
 
     /*  toggleCompetency Function
