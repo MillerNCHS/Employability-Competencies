@@ -21,7 +21,7 @@ type Competency = {
 type EntryFromDB = {
     id: number;
     text: string;
-    created_at: string;
+    createdAt: string;
     competencies: {competency_id: number}[];
 }
 
@@ -63,14 +63,14 @@ export default function DailyThought() {
             const formatted: Thought[] = data.map((row) => (
                 {
                     text: row.text,
-                    time: new Date(row.created_at).toLocaleString("en-US", {
+                    time: new Date(row.createdAt).toLocaleString("en-US", {
                         month: "short",
                         day: "2-digit",
                         year: "numeric",
                         hour: "2-digit",
                         minute: "2-digit",
                     }),
-                    competencies: row.competencies.map((c) => c.competency_id),
+                    competencies: row.competencies,
                 }
             ));
             setThoughts(formatted);
@@ -170,8 +170,7 @@ export default function DailyThought() {
             {/* Save Thought button that triggers the handleSave function */}
             <button
                 onClick={handleSave}
-                className="mt-3 bg-white text-[#ff0000] px-4 py-2 rounded-md
-            font-semibold hover:bg-[#000000] transition-colors cursor-pointer">
+                className="mt-3 bg-white text-[#ff0000] px-4 py-2 rounded-md font-semibold hover:bg-[#000000] transition-colors cursor-pointer">
                 Save Thought
             </button>
             
@@ -193,7 +192,6 @@ export default function DailyThought() {
                                     {/* For each competency attached to the current thought, find the actual name of the skill */}
                                     {thought.competencies.map((id) =>
                                         competencies.find((c) => c.id === id)?.skill || `#${id}`).join(", ")
-            
                                     }
                                 </p>
                             )}  

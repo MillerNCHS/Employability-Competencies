@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         return NextResponse.json({
             id: entryID,
             text,
-            createdAt: new Date().toISOString,
+            created_at: new Date().toISOString,
             competencies: competencyIDs
         });
     }
@@ -64,6 +64,6 @@ export async function GET() {
     }
 
     const userEmail = session.user.email;
-    const [entries] = await connection.execute("SELECT e.id, e.text, GROUP_CONCAT(c.skill) AS skills, GROUP_CONCAT(c.id) AS competency_ids FROM Entry e LEFT JOIN EntryCompetency ec ON e.id = ec.entryID LEFT JOIN Competency c ON ec.competencyID = c.id WHERE e.user = ? GROUP BY e.id ORDER BY e.id DESC", [userEmail]);
+    const [entries] = await connection.execute("SELECT e.id, e.text, e.createdAt, GROUP_CONCAT(c.skill) AS skills, JSON_ARRAYAGG(c.id) AS competencies FROM Entry e LEFT JOIN EntryCompetency ec ON e.id = ec.entryID LEFT JOIN Competency c ON ec.competencyID = c.id WHERE e.user = ? GROUP BY e.id ORDER BY e.id DESC", [userEmail]);
     return NextResponse.json(entries);
 }
