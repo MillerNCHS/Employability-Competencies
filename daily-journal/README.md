@@ -6,19 +6,24 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You will need an .env.local file with the following values to run the app:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+DB_HOST=
+DB_USER=
+DB_PASS=
+DB=
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost:3000
+```
 
 ## Learn More
 

@@ -22,10 +22,15 @@ type EntryFromDB = {
     id: number;
     text: string;
     createdAt: string;
-    competencies: {competency_id: number}[];
+    competencies: number[];
 }
 
 // The DailyThought component can't be used elsewhere if we don't export it
+// React components can receive props objects (kind of similar to parameters)
+// props objects can transfer data in a read-only format
+// For example, if you wanted to you could create a title prop so when you create a DailyThought component you could do this:
+//      <DailyThought title="My Thoughts" />
+// We could change the DailyThought header to DailyThought(props) and access the title using props.title
 export default function DailyThought() {
     // input/thoughts/competencies/selected are the variables and setInput/setThoughts/setCompetencies/setSelected update those variables
     // The useState hook allows you to set the default value for each variable
@@ -50,9 +55,8 @@ export default function DailyThought() {
         fetchCompetencies();
     }, []); // An empty dependency array means this effect only runs ONCE when the component mounts
 
-    // Load thoughts from localStorage on page load
+    // Load thoughts from the database using our GET route
     useEffect(() => {
-        
         async function loadThoughts() {
             const res = await fetch("/api/entry");
             
@@ -79,10 +83,11 @@ export default function DailyThought() {
     }, []);
 
     // Save thoughts to localStorage whenever thoughts are added
-    useEffect(() => {
+    // No longer needed after database is used
+    /*useEffect(() => {
         // Convert the stored JSON data to a string
         localStorage.setItem("dailyThoughts", JSON.stringify(thoughts));
-    }, [thoughts]); // Runs whenever thoughts state changes 
+    }, [thoughts]); // Runs whenever thoughts state changes */
 
     /*  handleSave Function
         No Parameters
@@ -108,9 +113,20 @@ export default function DailyThought() {
        }
 
         // Create a new Thought object and clear the input box
-        // Calling setThoughts will trigger the useEffect with thoughts as a dependency
         const newThought = await res.json();
-        setThoughts([newThought, ...thoughts]);
+        const formattedThought: Thought = {
+            text: newThought.text,
+            time: new Date(newThought.createdAt).toLocaleString("en-US", {
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            }),
+            competencies: newThought.competencies,
+        };
+
+        setThoughts([formattedThought, ...thoughts]);
         setInput("");
         setSelected([]);
     }
